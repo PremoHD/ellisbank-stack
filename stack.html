@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EllisBanking Serverless Quantum Stack</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f9f9f9; margin:20px;}
+h1 {text-align:center; margin-bottom:20px;}
+.tabs { display:flex; cursor:pointer; margin-bottom:10px; flex-wrap:wrap;}
+.tab { padding:10px 15px; background:#3498db; color:#fff; border-radius:5px 5px 0 0; margin-right:5px; margin-bottom:5px;}
+.tab.active { background:#2980b9;}
+.section { display:none; background:#fff; padding:20px; border-radius:0 5px 5px 5px; box-shadow:0 3px 6px rgba(0,0,0,0.1);}
+.section.active { display:block;}
+label { display:block; margin-top:10px; font-weight:bold;}
+input, select, textarea, button { width:100%; padding:6px; margin-top:4px; border-radius:4px; border:1px solid #ccc;}
+button { background:#3498db; color:#fff; border:none; cursor:pointer; margin-top:10px;}
+button:hover { background:#2980b9;}
+textarea { resize:vertical;}
+.section h2 { border-bottom:2px solid #3498db; padding-bottom:5px; margin-bottom:10px;}
+.status { margin-top:5px; font-weight:bold; color:gray;}
+input[type=number]{width:100px;}
+table { width:100%; border-collapse:collapse; margin-top:10px;}
+th, td { border:1px solid #ccc; padding:5px;}
+th { background:#3498db; color:#fff;}
+</style>
+</head>
+<body>
+
+<h1>EllisBanking Serverless Quantum Stack</h1>
+
+<div class="tabs">
+  <div class="tab active" data-tab="deposit">Deposit</div>
+  <div class="tab" data-tab="pos">POS Card Load</div>
+  <div class="tab" data-tab="bitcoin">Bitcoin Send</div>
+  <div class="tab" data-tab="prescriptions">Prescriptions</div>
+  <div class="tab" data-tab="upload">Upload Logs</div>
+  <div class="tab" data-tab="quantum">Web3 Quantum</div>
+</div>
+
+<!-- ================== DEPOSIT ================== -->
+<div id="deposit" class="section active">
+<h2>Incoming Deposit</h2>
+<input type="text" id="depositUrl" placeholder="POST URL (mock offline)">
+<input type="text" id="deposit_ref" placeholder="Deposit Reference ID">
+<input type="number" id="deposit_amount" placeholder="Amount" min="0.01" step="0.01">
+<select id="deposit_type"><option>ACH</option><option>Wire</option><option>Check</option><option>Cash</option><option>Crypto</option></select>
+<input type="date" id="deposit_date">
+<textarea id="memo" placeholder="Memo / Notes"></textarea>
+<h3>Sender Info</h3>
+<input type="text" id="sender_name" placeholder="Full Name">
+<input type="text" id="sender_address" placeholder="Address">
+<input type="text" id="sender_account" placeholder="Account Number">
+<input type="text" id="sender_bank" placeholder="Bank Name">
+<input type="text" id="sender_routing" placeholder="Routing Number">
+<h3>Recipient Info</h3>
+<input type="text" id="recipient_name" placeholder="Full Name">
+<input type="text" id="recipient_account" placeholder="Account Number">
+<input type="text" id="recipient_bank" placeholder="Bank Name">
+<input type="text" id="recipient_routing" placeholder="Routing Number">
+<textarea id="recipient_memo" placeholder="Recipient Memo"></textarea>
+<h3>Insurance</h3>
+<input type="text" id="deposit_insurance_provider" placeholder="Insurance Provider">
+<input type="text" id="deposit_insurance_policy" placeholder="Policy Number">
+<label>Batch Size</label><input type="number" id="depositBatchSize" value="1" min="1">
+<button id="submitDeposit">Submit Deposit</button>
+<button id="downloadDepositLog">Download Deposit Log</button>
+<p id="depositStatus" class="status">Status: Idle</p>
+</div>
+
+<!-- ================== POS ================== -->
+<div id="pos" class="section">
+<h2>POS Card Loading</h2>
+<input type="text" id="posUrl" placeholder="POST URL (mock offline)">
+<input type="text" id="card_number" placeholder="Card Number">
+<input type="text" id="card_holder" placeholder="Card Holder Name">
+<select id="card_type"><option>Debit</option><option>Prepaid</option><option>Gift</option></select>
+<input type="month" id="card_expiry">
+<input type="number" id="load_amount" min="0.01" step="0.01" placeholder="Load Amount">
+<input type="date" id="load_date">
+<select id="load_source"><option>Bank Transfer</option><option>Cash</option><option>Credit Card</option></select>
+<textarea id="load_memo" placeholder="Notes / Memo"></textarea>
+<label>Batch Size</label><input type="number" id="posBatchSize" value="1" min="1">
+<button id="submitPos">Submit Card Load</button>
+<button id="downloadPosLog">Download POS Log</button>
+<p id="posStatus" class="status">Status: Idle</p>
+</div>
+
+<!-- ================== BITCOIN ================== -->
+<div id="bitcoin" class="section">
+<h2>Bitcoin Send</h2>
+<input type="text" id="btcUrl" placeholder="POST URL (mock offline)">
+<input type="text" id="btc_address" placeholder="Recipient BTC Address">
+<input type="number" id="btc_amount" min="0.00000001" step="0.00000001" placeholder="Amount BTC">
+<input type="text" id="btc_sender" placeholder="Sender Wallet ID">
+<select id="btc_network"><option>Bitcoin Mainnet</option><option>Bitcoin Testnet</option></select>
+<select id="btc_priority"><option>Low Fee</option><option>Standard</option><option>High Priority</option></select>
+<textarea id="btc_memo" placeholder="Memo / Reference"></textarea>
+<label>Batch Size</label><input type="number" id="btcBatchSize" value="1" min="1">
+<button id="submitBTC">Submit BTC Send</button>
+<button id="downloadBTCLog">Download BTC Log</button>
+<p id="btcStatus" class="status">Status: Idle</p>
+</div>
+
+<!-- ================== PRESCRIPTIONS ================== -->
+<div id="prescriptions" class="section">
+<h2>Prescription Entries</h2>
+<input type="text" id="prescriptionUrl" placeholder="POST URL (mock offline)">
+<input type="text" id="patient_name" placeholder="Patient Full Name">
+<input type="date" id="patient_dob">
+<input type="text" id="patient_address" placeholder="Address">
+<input type="text" id="drug_name" placeholder="Drug Name">
+<input type="text" id="dosage" placeholder="Dosage">
+<input type="number" id="quantity" placeholder="Quantity">
+<input type="number" id="refills" placeholder="Refills">
+<input type="text" id="prescribing_doctor" placeholder="Prescribing Doctor">
+<input type="date" id="date_issued">
+<input type="text" id="insurance_provider" placeholder="Insurance Provider">
+<input type="text" id="insurance_policy" placeholder="Policy Number">
+<label>Batch Size</label><input type="number" id="prescriptionBatchSize" value="1" min="1">
+<button id="submitPrescription">Submit Prescription</button>
+<button id="downloadPrescriptionLog">Download Prescription Log</button>
+<p id="prescriptionStatus" class="status">Status: Idle</p>
+</div>
+
+<!-- ================== UPLOAD LOGS ================== -->
+<div id="upload" class="section">
+<h2>Upload & Combine Logs</h2>
+<input type="file" id="logFiles" multiple accept=".json">
+<button id="combineLogs">Combine Logs</button>
+<button id="downloadCombined">Download Combined JSON</button>
+<table id="logsTable"><thead><tr><th>File Name</th><th>Entries</th></tr></thead><tbody></tbody></table>
+</div>
+
+<!-- ================== QUANTUM ================== -->
+<div id="quantum" class="section">
+<h2>Web3 Quantum Ledger</h2>
+<input type="text" id="sender_token" placeholder="Sender Token/Wallet">
+<input type="text" id="receiver_token" placeholder="Receiver Token/Wallet">
+<input type="number" id="wrap_amount" min="0.00001" step="0.00001">
+<select id="token_type"><option>BTC</option><option>ETH</option><option>USDC</option></select>
+<button id="submitQuantum">Submit Quantum Transfer</button>
+<button id="downloadQuantumLog">Download Quantum Log</button>
+<p id="quantumStatus" class="status">Status: Idle</p>
+</div>
+
+<script>
+// TAB SWITCHING
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ===== TX ID GENERATOR =====
+function generateTxID(modulePrefix='TX'){
+  const now=new Date();
+  const pad=n=>n.toString().padStart(2,'0');
+  const ts=now.getFullYear()+pad(now.getMonth()+1)+pad(now.getDate())+pad(now.getHours())+pad(now.getMinutes())+pad(now.getSeconds());
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let rand=''; for(let i=0;i<6;i++){rand+=chars.charAt(Math.floor(Math.random()*chars.length));}
+  return `${modulePrefix}-${ts}-${rand}`;
+}
+
+// ===== LOCAL LOGS =====
+let depositLogs=JSON.parse(localStorage.getItem('depositLogs')||'[]');
+let posLogs=JSON.parse(localStorage.getItem('posLogs')||'[]');
+let btcLogs=JSON.parse(localStorage.getItem('btcLogs')||'[]');
+let prescriptionLogs=JSON.parse(localStorage.getItem('prescriptionLogs')||'[]');
+let quantumLogs=JSON.parse(localStorage.getItem('quantumLogs')||'[]');
+
+// ===== BATCH SUBMISSION FUNCTION =====
+function submitBatch(modulePrefix, fieldIds, logArray, logKey, batchSize, statusElId){
+  const statusEl=document.getElementById(statusElId); let current=0;
+  function next(){
+    if(current>=batchSize) return;
+    const data={}; fieldIds.forEach(id=>data[id]=document.getElementById(id).value);
+    data.tx_id=generateTxID(modulePrefix);
+    data.timestamp=new Date().toISOString();
+    logArray.push(data);
+    localStorage.setItem(logKey, JSON.stringify(logArray));
+    statusEl.textContent=`Status: Logging ${current+1} of ${batchSize}...`;
+    statusEl.style.color='blue';
+    current++;
+    setTimeout(next,200);
+  }
+  next();
+}
+
+// ===== MODULE SUBMISSIONS =====
+document.getElementById('submitDeposit').addEventListener('click',()=>{
+  const fields=['deposit_ref','deposit_amount','deposit_type','deposit_date','memo','sender_name','sender_address','sender_account','sender_bank','sender_routing','recipient_name','recipient_account','recipient_bank','recipient_routing','recipient_memo','deposit_insurance_provider','deposit_insurance_policy'];
+  const batchSize=parseInt(document.getElementById('depositBatchSize').value)||1;
+  submitBatch('DEP',fields,depositLogs,'depositLogs',batchSize,'depositStatus');
+});
+
+document.getElementById('submitPos').addEventListener('click',()=>{
+  const fields=['card_number','card_holder','card_type','card_expiry','load_amount','load_date','load_source','load_memo'];
+  const batchSize=parseInt(document.getElementById('posBatchSize').value)||1;
+  submitBatch('POS',fields,posLogs,'posLogs',batchSize,'posStatus');
+});
+
+document.getElementById('submitBTC').addEventListener('click',()=>{
+  const fields=['btc_address','btc_amount','btc_sender','btc_network','btc_priority','btc_memo'];
+  const batchSize=parseInt(document.getElementById('btcBatchSize').value)||1;
+  submitBatch('BTC',fields,btcLogs,'btcLogs',batchSize,'btcStatus');
+});
+
+document.getElementById('submitPrescription').addEventListener('click',()=>{
+  const fields=['patient_name','patient_dob','patient_address','drug_name','dosage','quantity','refills','prescribing_doctor','date_issued','insurance_provider','insurance_policy'];
+  const batchSize=parseInt(document.getElementById('prescriptionBatchSize').value)||1;
+  submitBatch('PRES',fields,prescriptionLogs,'prescriptionLogs',batchSize,'prescriptionStatus');
+});
+
+// Quantum Ledger individual TXs
+document.getElementById('submitQuantum').addEventListener('click',()=>{
+  const data={sender:document.getElementById('sender_token').value,receiver:document.getElementById('receiver_token').value,amount:parseFloat(document.getElementById('wrap_amount').value),token_type:document.getElementById('token_type').value,tx_id:generateTxID('QUANT'),timestamp:new Date().toISOString()};
+  if(!data.sender||!data.receiver||!data.amount||data.amount<=0){alert("All fields must be valid"); return;}
+  quantumLogs.push(data); localStorage.setItem('quantumLogs',JSON.stringify(quantumLogs));
+  document.getElementById('quantumStatus').textContent=`Status: Logged TX ${data.tx_id} ✅`;
+});
+
+// ===== DOWNLOAD LOG BUTTONS =====
+document.getElementById('downloadDepositLog').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(depositLogs,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`deposit_log_${new Date().toISOString()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);});
+document.getElementById('downloadPosLog').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(posLogs,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`pos_log_${new Date().toISOString()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);});
+document.getElementById('downloadBTCLog').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(btcLogs,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`btc_log_${new Date().toISOString()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);});
+document.getElementById('downloadPrescriptionLog').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(prescriptionLogs,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`prescription_log_${new Date().toISOString()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);});
+document.getElementById('downloadQuantumLog').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(quantumLogs,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`quantum_log_${new Date().toISOString()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);});
+
+// ===== LOG UPLOAD MODULE =====
+document.getElementById('combineLogs').addEventListener('click',()=>{
+  const files=document.getElementById('logFiles').files;
+  const combined=[];
+  const tbody=document.querySelector('#logsTable tbody'); tbody.innerHTML='';
+  Array.from(files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        const data=JSON.parse(e.target.result);
+        combined.push(...data);
+        const tr=document.createElement('tr'); tr.innerHTML=`<td>${file.name}</td><td>${data.length||1}</td>`; tbody.appendChild(tr);
+      }catch(err){alert('Invalid JSON: '+file.name);}
+    }; reader.readAsText(file);
+  });
+  setTimeout(()=>{localStorage.setItem('combinedLogs',JSON.stringify(combined)); alert('Logs combined successfully');},200);
+});
+document.getElementById('downloadCombined').addEventListener('click',()=>{
+  const combined=JSON.parse(localStorage.getItem('combinedLogs')||'[]');
+  const blob=new Blob([JSON.stringify(combined,null,2)],{type:'application/json'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=`combined_logs_${new Date().toISOString()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+});
+
+// ===== SERVICE WORKER REGISTER =====
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').then(r=>console.log('SW registered',r)).catch(e=>console.log('SW failed',e));});
+}
+</script>
+</body>
+</html>
